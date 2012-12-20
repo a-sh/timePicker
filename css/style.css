@@ -1,0 +1,93 @@
+body
+{
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.timePicker-body
+{
+    display: none;
+    position: absolute;
+    width:310px;
+    padding-top: 30px;
+    background: #fff;
+}
+.time
+{
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+.timePicker-closeButton
+{
+    position: absolute;
+    right:0;
+    top:0;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 1px 0 white;
+    cursor: pointer;
+    opacity: 0.2;
+    filter: alpha(opacity=20);
+    color:#000;
+}
+.timePicker-closeButton:hover
+{
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+}
+.clockButton
+{
+    display: inline-block; //zoom:1; //display:inline;
+    width:16px;
+    height: 16px;
+    background: url(../img/clock.png) no-repeat 0 0;
+    cursor: pointer;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+.timePicker-hours,
+.timePicker-minutes
+{
+    position: relative;
+    width:150px;
+    display: inline-block; //zoom:1; //display:inline;
+    vertical-align: top;
+}
+.timePicker-hours
+{
+    margin-right: 10px;
+}
+.timePicker-hours:before,
+.timePicker-minutes:before
+{
+    position: absolute;
+    top:-15px;
+    left:0;
+    font-size: 12px;
+}
+.timePicker-hours:before
+{
+    content: 'Часы'; /*Не хотелось плодить лишних элементов =) */
+}
+.timePicker-minutes:before
+{
+    content: 'Минуты';
+}
+.timePicker__item
+{
+    display: inline-block; //zoom:1; //display:inline;
+    box-sizing: border-box;
+    width:25px;
+    padding: 2px;
+    border:1px solid #fff;
+    text-align: center;
+    font-size: 12px;
+    background-color: #eee;
+    cursor: pointer;
+
+}
+.timePicker-hours__item:hover,
+.timePicker-minutes__item:hover
+{
+    background-color: #ddd;
+}
