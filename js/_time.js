@@ -1,3 +1,23 @@
+/*
+* TODO
+     Кнопка OK на time-селекторе нефункциональна. Т.е. предполагается что по OK выбранное время сохранится в текстбоксе, но если я нажимаю крестик - происходит то же самое.        Желательно либо исправить проблему с крестиком либо убрать кнопку OK.
+     Сейчас можно ввести 99:99:99
+     Добавить валидацию времени, если время введено в неверном формате - выводить юзеру ошибку
+     Добавить подсказку с форматом в случае когда textbox пуст.
+     Добавить кнопку которая выводила бы в консоль время из компонента
+     Если время в textbox-е некорректное, то компонент должен выводить в консоль последнее корректное время
+     Пустое значение не должно вызвать ошибку. Если время не задано, то в консоль также нужно выводить что время не задано.
+     Добавить кнопку которая выставляла бы время в 17:00
+     Добавить возможность задавать секунды. Секунды должны быть опциональными.
+*
+* */
+
+// ^([0-1][0-9]|[2][0-3]):([0-5][0-9])$  для валидации времени в формате чч:мм
+
+// ^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)  для валидации времени в формате чч:мм
+
+// ^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)(:[0-5]\d)  для валидации времени в формате чч:мм:сс
+
 (function($, window, document, undefined) {
 
     /**
@@ -11,9 +31,13 @@
         var $this = $(element);
         var elem;
         var input;
-        var hours, minutes;
-        var currHours, currMinutes;
+        var hours, minutes, seconds;
+        var currHours, currMinutes, currSeconds;
         var subButton;
+        var secondsEnabled = false;
+        var hm = /^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)/; // hours, minutes
+        var hms = /^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)(:[0-5]\d)/; // hours, minutes, seconds
+        var lastCorrectTime = '';
 
         $(self).on('timeChanged', function(e) {
             console.log(e.value);
@@ -33,6 +57,19 @@
                 hours = time.hours;
                 minutes = time.minutes;
             }
+        }
+
+        /**
+         * Проверяет валидность введенного времени, возвращает булево значение
+         *
+         * @param time
+         * @return {*}
+         */
+        function isValidTime(time) {
+            if(secondsEnabled) {
+                return time.match(hms);
+            }
+            return time.match(hm);
         }
 
 
@@ -90,6 +127,18 @@
                     'class': 'clockButton'
                 }).on('click', showTimepicker);
 
+                var secondsTickLabel = $('<label>', {
+                   'class': 'sec-switcher-wrap',
+                    text: 'Показать секунды'
+                });
+
+                var secondsTick = $('<input>', {
+                   type: 'checkbox',
+                   'class': 'sec-switcher'
+                }).on('click', function(){
+                   secondsEnabled = this.checked;
+                });
+
                 var timePickerBodyHours = $('<div>', {
                     'class': 'timePicker-hours'
                 });
@@ -119,8 +168,9 @@
 
                 createElements(24, 1, timePickerBodyHours, 'timePicker-hours__item');
                 createElements(60, 5, timePickerBodyMinutes, 'timePicker-minutes__item');
+                secondsTick.appendTo(secondsTickLabel);
                 elem.append(closeButton, timePickerBodyHours, timePickerBodyMinutes, subButton);
-                $this.append(input, clockButton, elem);
+                $this.append(input, clockButton, secondsTickLabel, elem);
             }
         }
 

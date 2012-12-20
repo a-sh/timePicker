@@ -7,7 +7,7 @@ body
 {
     display: none;
     position: absolute;
-    width:310px;
+    min-width:310px;
     padding-top: 30px;
     background: #fff;
 }
