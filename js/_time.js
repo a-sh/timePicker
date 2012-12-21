@@ -53,9 +53,11 @@
             if(time instanceof Date) {
                 hours = time.getHours();
                 minutes = time.getMinutes();
+                seconds = time.getSeconds() || '';
             } else {
                 hours = time.hours;
                 minutes = time.minutes;
+                seconds = time.seconds || '';
             }
         }
 
@@ -136,7 +138,7 @@
                    type: 'checkbox',
                    'class': 'sec-switcher'
                 }).on('click', function(){
-                   secondsEnabled = this.checked;
+                    (secondsEnabled = this.checked) ? timePickerBodySeconds.fadeIn() : timePickerBodySeconds.fadeOut();
                 });
 
                 var timePickerBodyHours = $('<div>', {
@@ -145,6 +147,10 @@
 
                 var timePickerBodyMinutes = $('<div>', {
                     'class': 'timePicker-minutes'
+                });
+
+                var timePickerBodySeconds = $('<div>', {
+                    'class': 'timePicker-seconds'
                 });
 
                 subButton = $('<button>', {
@@ -168,8 +174,9 @@
 
                 createElements(24, 1, timePickerBodyHours, 'timePicker-hours__item');
                 createElements(60, 5, timePickerBodyMinutes, 'timePicker-minutes__item');
+                createElements(60, 5, timePickerBodySeconds, 'timePicker-seconds__item');
                 secondsTick.appendTo(secondsTickLabel);
-                elem.append(closeButton, timePickerBodyHours, timePickerBodyMinutes, subButton);
+                elem.append(closeButton, timePickerBodyHours, timePickerBodyMinutes, timePickerBodySeconds, subButton);
                 $this.append(input, clockButton, secondsTickLabel, elem);
             }
         }
