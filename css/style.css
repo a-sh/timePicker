@@ -46,24 +46,31 @@ body
     vertical-align: middle;
 }
 .timePicker-hours,
-.timePicker-minutes
+.timePicker-minutes,
+.timePicker-seconds
+
 {
     position: relative;
     width:150px;
-    display: inline-block; //zoom:1; //display:inline;
-    vertical-align: top;
+    float: left;
 }
-.timePicker-hours
+.timePicker-hours,
+.timePicker-minutes
 {
     margin-right: 10px;
 }
 .timePicker-hours:before,
-.timePicker-minutes:before
+.timePicker-minutes:before,
+.timePicker-seconds:before
 {
     position: absolute;
     top:-15px;
     left:0;
     font-size: 12px;
+}
+.timePicker-seconds
+{
+    display: none;
 }
 .timePicker-hours:before
 {
@@ -72,6 +79,10 @@ body
 .timePicker-minutes:before
 {
     content: 'Минуты';
+}
+.timePicker-seconds:before
+{
+    content: 'Секунды';
 }
 .timePicker__item
 {
@@ -86,8 +97,12 @@ body
     cursor: pointer;
 
 }
-.timePicker-hours__item:hover,
-.timePicker-minutes__item:hover
+.timePicker__item:hover
 {
     background-color: #ddd;
+}
+.timePicker-setTimeButton
+{
+    display: block;
+    clear:both;
 }
