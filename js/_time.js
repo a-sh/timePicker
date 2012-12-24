@@ -1,17 +1,3 @@
-/*
-* TODO
-     Кнопка OK на time-селекторе нефункциональна. Т.е. предполагается что по OK выбранное время сохранится в текстбоксе, но если я нажимаю крестик - происходит то же самое.        Желательно либо исправить проблему с крестиком либо убрать кнопку OK.
-     Сейчас можно ввести 99:99:99
-     Добавить валидацию времени, если время введено в неверном формате - выводить юзеру ошибку
-     Добавить подсказку с форматом в случае когда textbox пуст.
-     Добавить кнопку которая выводила бы в консоль время из компонента
-     Если время в textbox-е некорректное, то компонент должен выводить в консоль последнее корректное время
-     Пустое значение не должно вызвать ошибку. Если время не задано, то в консоль также нужно выводить что время не задано.
-     Добавить кнопку которая выставляла бы время в 17:00
-     Добавить возможность задавать секунды. Секунды должны быть опциональными.
-*
-* */
-
 (function($, window, document, undefined) {
 
     /**
@@ -67,6 +53,14 @@
             }
         };
 
+        /**
+         * Возвращает время
+         * @return {String}
+         */
+        this.getTime = function() {
+            return makeTimeString();
+        };
+
 
         self.setTime(options);
 
@@ -78,7 +72,7 @@
             if(time instanceof Date) {
                 hours   = time.getHours();
                 minutes = time.getMinutes();
-                seconds = time.getSeconds() || '';
+                seconds = time.getSeconds();
             } else if(typeof time === 'string') {
                 hours   = +time.slice(0, 2);
                 minutes = +time.slice(3, 5);
@@ -86,7 +80,7 @@
             } else {
                 hours   = time.hours;
                 minutes = time.minutes;
-                seconds = time.seconds || '';
+                seconds = time.seconds || 0;
             }
         }
         /**
@@ -105,6 +99,11 @@
 
         function validateTime(time, zzz) {
             var incorrectTime = $('.error');
+            if(time == ''){
+                console.warn('Время не задано');
+                if(incorrectTime.is(':visible')) incorrectTime.slideUp();
+                return;
+            }
             if(!isValidTime(time)){
                 if(!incorrectTime.length){
                     $('<div>', {
@@ -113,6 +112,7 @@
                     }).insertBefore(input).slideDown();
                 }
                 incorrectTime.slideDown();
+                console.log('Последнее корректно введенное время: ' + lastCorrectTime);
             } else {
                 if(incorrectTime.length && incorrectTime.is(':visible')){
                     incorrectTime.slideUp();
@@ -204,7 +204,7 @@
 
                 subButton = $('<button>', {
                     'class': 'timePicker-setTimeButton',
-                    text: 'oks',
+                    text: 'ok',
                     disabled: 'true'
                 }).on('click', function(e) {
                     var time = input.val();
@@ -229,7 +229,7 @@
                 createElements(24, 1, timePickerBodyHours, 'timePicker-hours__item');
                 createElements(60, 5, timePickerBodyMinutes, 'timePicker-minutes__item');
                 createElements(60, 5, timePickerBodySeconds, 'timePicker-seconds__item');
-                secondsTick.appendTo(secondsTickLabel);
+                secondsTick.prependTo(secondsTickLabel);
                 elem.append(closeButton, timePickerBodyHours, timePickerBodyMinutes, timePickerBodySeconds, subButton);
                 $this.append(input, clockButton, secondsTickLabel, elem);
             }
@@ -253,7 +253,6 @@
             if(target.hasClass('timePicker-seconds__item')) {
                 seconds = +target.text();
             }
-
             validateTime(makeTimeString(), true);
 
             /*self.setTime({
@@ -283,7 +282,10 @@
 
     $.fn.time = function(options) {
         return this.each(function() {
-            new Timepicker(this, options);
+            var elem = $(this);
+            if(elem.data('timePicker')) return;
+            var timePicker = new Timepicker(this, options);
+            elem.data('timePicker', timePicker);
         });
     };
 })(jQuery, window, document);

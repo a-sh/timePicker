@@ -4,18 +4,49 @@
     <meta charset=utf-8 />
     <title>Timepicker</title>
     <link rel="stylesheet" href="css/style.css">
+    <style type="text/css">
+    button {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 0;
+        border: 1px solid transparent;
+        font-size: .8em;
+        color: white;
+        background-color: #1570A6;
+        cursor: pointer;
+    }
+    button:hover
+    {
+        background-color: #083047;
+        color: white;
+    }
+    div {
+        margin-bottom: 10px;
+    }
+    </style>
 </head>
 <body>
 <div class="test"></div>
 
-<div class="test2"></div>
-
+<div>
+    <button class="getTime">get time(see it in console)</button>
+    <button class="setTime">set time to 17</button>
+</div>
 
 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>-->
 <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="js/_time.js"></script>
 <script type="text/javascript">
-    var test = $('.test').time({hours:15, minutes: 20});
+    var time = $('.test').time({hours:15, minutes: 20}).data('timePicker');
+
+    $('.getTime').on('click', function() {
+        console.log(time.getTime());
+    });
+
+    $('.setTime').on('click', function() {
+        time.setTime({hours:17, minutes: 0, seconds: 53})
+    });
+
 </script>
 </body>
 </html>
