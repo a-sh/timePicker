@@ -12,12 +12,6 @@
 *
 * */
 
-// ^([0-1][0-9]|[2][0-3]):([0-5][0-9])$  для валидации времени в формате чч:мм
-
-// ^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)  для валидации времени в формате чч:мм
-
-// ^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)(:[0-5]\d)  для валидации времени в формате чч:мм:сс
-
 (function($, window, document, undefined) {
 
     /**
@@ -35,8 +29,8 @@
         var currHours, currMinutes, currSeconds;
         var subButton;
         var secondsEnabled = false;
-        var hm = /^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)/; // hours, minutes
-        var hms = /^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)(:[0-5]\d)/; // hours, minutes, seconds
+        var hm = /^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)$/; // hours, minutes
+        var hms = /^(0[0-9]|1[0-9]|2[0-3])(:[0-5]\d)(:[0-5]\d)$/; // hours, minutes, seconds
         var lastCorrectTime = '';
 
         $(self).on('timeChanged', function(e) {
@@ -47,20 +41,54 @@
 
         /**
          *
+         * @param newTime новое (или нет?) время
+         * @param zZz булево значение. true - "спим" и не вызываем событие, false - "огонь" =)
+         */
+        this.setTime = function(newTime, zZz) {
+            parseTime(newTime);
+
+            /* Изменилось ли время? обновляем, если да */
+            if(currHours != hours || currMinutes != minutes || currSeconds != seconds) {
+                if(subButton.attr('disabled')) subButton.attr('disabled', false);
+                currHours = hours;
+                currMinutes = minutes;
+                currSeconds = seconds;
+                input.val(makeTimeString());
+            } else {
+                subButton.attr('disabled', true); /* блокируем кнопку, если время не менялось */
+            }
+
+            if(!zZz) {
+                lastCorrectTime = makeTimeString();
+                $(self).triggerHandler({
+                    type: "timeChanged",
+                    value: new Date(2012, 11, 16, hours, minutes, seconds)
+                });
+            }
+        };
+
+
+        self.setTime(options);
+
+        /**
+         *
          * @param time - Date-объект или объект вида {hours:XX, minutes: XX}
          */
         function parseTime(time) {
             if(time instanceof Date) {
-                hours = time.getHours();
+                hours   = time.getHours();
                 minutes = time.getMinutes();
                 seconds = time.getSeconds() || '';
+            } else if(typeof time === 'string') {
+                hours   = +time.slice(0, 2);
+                minutes = +time.slice(3, 5);
+                seconds = +time.slice(6, 8);
             } else {
-                hours = time.hours;
+                hours   = time.hours;
                 minutes = time.minutes;
                 seconds = time.seconds || '';
             }
         }
-
         /**
          * Проверяет валидность введенного времени, возвращает булево значение
          *
@@ -75,33 +103,39 @@
         }
 
 
-        /**
-         *
-         * @param newTime новое (или нет?) время
-         * @param zZz булево значение. true - "спим" и не вызываем событие, false - "огонь" =)
-         */
-        this.setTime = function(newTime, zZz) {
-            parseTime(newTime);
-
-            /* Изменилось ли время? обновляем, если да */
-            if(currHours != hours || currMinutes != minutes) {
-                if(subButton.attr('disabled')) subButton.attr('disabled', false);
-                currHours = hours;
-                currMinutes = minutes;
-                input.val((hours < 10 ? '0' + hours : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes));
+        function validateTime(time, zzz) {
+            var incorrectTime = $('.error');
+            if(!isValidTime(time)){
+                if(!incorrectTime.length){
+                    $('<div>', {
+                        'class': 'error',
+                        text: 'Введено некорректное время'
+                    }).insertBefore(input).slideDown();
+                }
+                incorrectTime.slideDown();
             } else {
-                subButton.attr('disabled', true); /* блокируем кнопку, если время не менялось */
+                if(incorrectTime.length && incorrectTime.is(':visible')){
+                    incorrectTime.slideUp();
+                }
+                self.setTime(time, zzz);
+            }
+        }
+
+        /**
+         * создает форму вывода заданного времени в поле
+         * @return {String}
+         */
+        function makeTimeString() {
+            var sec;
+
+            if(secondsEnabled) {
+                sec = seconds < 10 ? ':0' + seconds : ':' + seconds;
+            } else {
+                sec = '';
             }
 
-            if(!zZz) {
-                $(self).triggerHandler({
-                    type: "timeChanged",
-                    value: new Date(2012, 12, 16, hours, minutes)
-                });
-            }
-        };
-
-        self.setTime(options);
+            return (hours < 10 ? '0' + hours : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes) + sec;
+        }
 
         function showTimepicker () {
             elem.fadeIn();
@@ -123,6 +157,8 @@
                 input = $('<input>', {
                     'class':'time',
                     type: 'text'
+                }).on('keyup', function() {
+                    validateTime(this.value);
                 });
 
                 var clockButton = $('<span>', {
@@ -138,7 +174,14 @@
                    type: 'checkbox',
                    'class': 'sec-switcher'
                 }).on('click', function(){
-                    (secondsEnabled = this.checked) ? timePickerBodySeconds.fadeIn() : timePickerBodySeconds.fadeOut();
+                    //(secondsEnabled = this.checked) ? timePickerBodySeconds.fadeIn() : timePickerBodySeconds.fadeOut();
+                    if(secondsEnabled = this.checked) {
+                        timePickerBodySeconds.fadeIn();
+                        input.val(input.val() + (seconds || ':' + '00'));
+                    } else {
+                        timePickerBodySeconds.fadeOut();
+                        input.val(input.val().slice(0, 5));
+                    }
                 });
 
                 var timePickerBodyHours = $('<div>', {
@@ -155,14 +198,16 @@
 
                 subButton = $('<button>', {
                     'class': 'timePicker-setTimeButton',
-                    text: 'ok'
+                    text: 'oks',
+                    disabled: 'true'
                 }).on('click', function(e) {
                     var time = input.val();
                     var hours = +time.slice(0,2);
                     var minutes = +time.slice(3,5);
                     self.setTime({
                         hours: hours,
-                        minutes: minutes
+                        minutes: minutes,
+                        seconds: seconds
                     });
                     hideTimepicker();
                 });
@@ -170,7 +215,10 @@
                 var closeButton = $('<span>',{
                     'class': 'timePicker-closeButton',
                     text: '×'
-                }).on('click', hideTimepicker);
+                }).on('click', function() {
+                        hideTimepicker();
+                        input.val(lastCorrectTime);
+                });
 
                 createElements(24, 1, timePickerBodyHours, 'timePicker-hours__item');
                 createElements(60, 5, timePickerBodyMinutes, 'timePicker-minutes__item');
@@ -196,10 +244,17 @@
                 minutes = +target.text();
             }
 
-            self.setTime({
+            if(target.hasClass('timePicker-seconds__item')) {
+                seconds = +target.text();
+            }
+
+            validateTime(makeTimeString(), true);
+
+            /*self.setTime({
                 hours: hours,
-                minutes: minutes
-            }, true);
+                minutes: minutes,
+                seconds: seconds
+            }, true);*/
         }
 
         /**
