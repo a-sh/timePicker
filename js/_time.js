@@ -156,7 +156,8 @@
 
                 input = $('<input>', {
                     'class':'time',
-                    type: 'text'
+                    type: 'text',
+                    placeholder: 'hh:mm'
                 }).on('keyup', function() {
                     validateTime(this.value);
                 });
@@ -174,13 +175,18 @@
                    type: 'checkbox',
                    'class': 'sec-switcher'
                 }).on('click', function(){
-                    //(secondsEnabled = this.checked) ? timePickerBodySeconds.fadeIn() : timePickerBodySeconds.fadeOut();
                     if(secondsEnabled = this.checked) {
                         timePickerBodySeconds.fadeIn();
-                        input.val(input.val() + (seconds || ':' + '00'));
+                        input.attr('placeholder', 'hh:mm:ss');
+                        if(input.val()){
+                            input.val(input.val() + ':' + (seconds || '00'))
+                        }
                     } else {
                         timePickerBodySeconds.fadeOut();
-                        input.val(input.val().slice(0, 5));
+                        input.attr('placeholder', 'hh:mm');
+                        if(input.val()) {
+                            input.val(input.val().slice(0, 5))
+                        }
                     }
                 });
 
